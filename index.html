@@ -1,0 +1,950 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <title>Morse Code Translator Cyrillic</title>
+  <style>
+    :root {
+      --bg-main: #05060a;
+      --border-metal: #8f9a96;
+      --accent: #ffb347;
+      --accent-soft: #ffdd99;
+      --accent-strong: #ff8c00;
+      --text-main: #f2f2f2;
+      --text-dim: #a9b0aa;
+      --btn-border: #7f8a84;
+      --textarea-bg: #05060a;
+      --textarea-border: #3a4240;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html,
+    body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      background: var(--bg-main);
+      color: var(--text-main);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    body {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .app-root {
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      padding: 10px 14px;
+      gap: 10px;
+    }
+
+    .toolbar {
+      display: flex;
+      gap: 10px;
+      align-items: stretch;
+    }
+
+    .toolbar-box {
+      background: linear-gradient(to bottom, #3b433f, #2e3834);
+      border-radius: 6px;
+      border: 1px solid var(--border-metal);
+      box-shadow:
+        inset 0 0 0 1px rgba(0, 0, 0, 0.7),
+        0 4px 10px rgba(0, 0, 0, 0.7);
+      padding: 8px 10px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .toolbar-box.left {
+      flex: 1.4;
+      justify-content: space-between;
+    }
+
+    .toolbar-box.right {
+      flex: 0.9;
+      justify-content: space-between;
+    }
+
+    .toolbar-box-group {
+      display: flex;
+      align-items: center;
+      width: 100%;
+      gap: 23px;
+    }
+
+    .control-row {
+      display: flex;
+      align-items: center;
+    }
+
+    .control-row label {
+      letter-spacing: 0.12em;
+      color: var(--text-dim);
+      font-size: 11px;
+      user-select: none;
+    }
+
+    .control-row input[type="number"] {
+      width: 70px;
+      padding: 6px 10px;
+      border-radius: 4px;
+      border: 1px solid #8f9a96;
+      background: #10141a;
+      color: var(--accent-soft);
+      font-size: 11px;
+    }
+
+    .control-row input:focus {
+      outline: none;
+    }
+
+    .slider-row {
+      align-items: center;
+      gap: 6px;
+      font-size: 11px;
+      color: var(--text-dim);
+      user-select: none;
+      width: 100%;
+      margin-right: 4px;
+    }
+
+    .slider-row label {
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+    }
+
+    .slider-row input[type="range"] {
+      flex: 1;
+      accent-color: var(--accent-strong);
+      background: #05060a;
+    }
+
+    .slider-value {
+      min-width: 40px;
+      text-align: right;
+      color: var(--accent-soft);
+      font-size: 11px;
+      user-select: none;
+    }
+
+    input[type="range"] {
+      -webkit-appearance: none;
+      width: 100%;
+      height: 4px;
+      border-radius: 999px;
+      background: #111;
+      outline: none;
+    }
+
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      background: var(--accent);
+      border: 1px solid #000;
+      box-shadow:
+        0 0 4px rgba(255, 140, 0, 0.8),
+        0 0 0 1px rgba(0, 0, 0, 0.8);
+      cursor: pointer;
+    }
+
+    input[type="range"]::-moz-range-thumb {
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      background: var(--accent);
+      border: 1px solid #000;
+      box-shadow:
+        0 0 4px rgba(255, 140, 0, 0.8),
+        0 0 0 1px rgba(0, 0, 0, 0.8);
+      cursor: pointer;
+    }
+
+    input[type="range"]::-moz-range-track {
+      height: 4px;
+      border-radius: 999px;
+      background: #05060a;
+    }
+
+    .btn {
+      background: linear-gradient(to bottom, #4a5450, #2f3533);
+      border: 1px solid var(--btn-border);
+      color: var(--text-main);
+      border-radius: 4px;
+      padding: 6px 10px;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      cursor: pointer;
+      box-shadow:
+        0 1px 0 rgba(255, 255, 255, 0.08),
+        0 2px 4px rgba(0, 0, 0, 0.7);
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      user-select: none;
+    }
+
+    .btn:hover {
+      background: linear-gradient(to bottom, #596460, #383f3d);
+    }
+
+    .btn:active {
+      transform: translateY(1px);
+      box-shadow:
+        0 0 0 rgba(0, 0, 0, 0.7);
+    }
+
+    .btn-primary {
+      border-color: var(--accent);
+      background: linear-gradient(to bottom, #ffb347, #c77a1f);
+      color: #20160a;
+      font-weight: 600;
+    }
+
+    .btn-primary:hover {
+      background: linear-gradient(to bottom, #ffd18a, #d8892a);
+    }
+
+    .btn-icon {
+      font-size: 13px;
+    }
+
+    .led-box {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 8px;
+      border-radius: 4px;
+      border: 1px solid #8f9a96;
+      background: #10141a;
+      min-width: 170px;
+    }
+
+    .led-indicator {
+      width: 12px;
+      height: 12px;
+      border-radius: 3px;
+      background: #3a2a10;
+      box-shadow: inset 0 0 4px rgba(0, 0, 0, 0.8);
+    }
+
+    .led-indicator.on {
+      background: #ff8c00;
+      box-shadow:
+        0 0 6px rgba(255, 140, 0, 0.9),
+        0 0 14px rgba(255, 140, 0, 0.7);
+    }
+
+    .led-labels {
+      display: flex;
+      flex-direction: column;
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: var(--text-dim);
+      user-select: none;
+    }
+
+    .led-labels span strong {
+      color: var(--accent-soft);
+    }
+
+    .main-panels {
+      flex: 1;
+      display: flex;
+      gap: 10px;
+      min-height: 0;
+    }
+
+    .panel {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      background: linear-gradient(to bottom, #3b433f, #2e3834);
+      border-radius: 8px;
+      border: 1px solid var(--border-metal);
+      box-shadow:
+        inset 0 0 0 1px rgba(0, 0, 0, 0.7),
+        0 4px 10px rgba(0, 0, 0, 0.7);
+      padding: 8px;
+      min-height: 0;
+    }
+
+    .panel-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 6px;
+      gap: 4px;
+    }
+
+    .panel-title {
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.18em;
+      color: var(--text-dim);
+      user-select: none;
+    }
+
+    .panel-buttons {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+
+    textarea {
+      flex: 1;
+      width: 100%;
+      resize: none;
+      border-radius: 6px;
+      border: 1px solid var(--textarea-border);
+      background: var(--textarea-bg);
+      color: var(--text-main);
+      padding: 8px;
+      font-size: 18px;
+      line-height: 1.4;
+      outline: none;
+      caret-color: var(--accent-soft);
+    }
+
+    textarea::selection {
+      background: rgba(152, 3, 1, 1);
+    }
+
+    .panel-footer {
+      margin-top: 6px;
+      display: flex;
+      justify-content: flex-end;
+      gap: 6px;
+    }
+
+    input[type="file"] {
+      display: none;
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    @media (max-width: 1100px) {
+      .toolbar {
+        flex-direction: column;
+      }
+
+      .toolbar-box.left,
+      .toolbar-box.right {
+        flex: none;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="app-root">
+    <div class="toolbar">
+      <div class="toolbar-box left">
+        <div class="toolbar-box-group">
+          <div class="control-row">
+            <label>WPM:
+              <input type="number" id="wpmInput" min="5" max="60" value="20">
+            </label>
+          </div>
+          <div class="control-row">
+            <label>Freq Hz:
+              <input type="number" id="freqInput" min="100" max="2000" value="650">
+            </label>
+          </div>
+          <div class="slider-row">
+            <label for="volumeSlider">Volume</label>
+            <input type="range" id="volumeSlider" min="0" max="1" step="0.01" value="0.4">
+            <div class="slider-value" id="volValue">0.40</div>
+          </div>
+          <div class="slider-row">
+            <label for="fontSlider">Font size</label>
+            <input type="range" id="fontSlider" min="18" max="40" step="1" value="26">
+            <div class="slider-value" id="fontValue">26px</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="toolbar-box">
+        <div class="toolbar-box-group">
+          <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
+            <button class="btn btn-primary" id="playPauseBtn">
+              <span class="btn-icon">▶︎</span> Play
+            </button>
+            <button class="btn" id="stopBtn">
+              <span class="btn-icon">■</span> Stop
+            </button>
+            <div class="led-box">
+              <div class="led-indicator" id="ledIndicator"></div>
+              <div class="led-labels">
+                <span><strong>KEY</strong> Down Indicator</span>
+                <span>Sine CW tone · bandpass filter</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="main-panels">
+      <div class="panel" id="panelText">
+        <div class="panel-header">
+          <div class="panel-title">Characters (CYR)</div>
+          <div class="panel-buttons">
+            <button class="btn" id="importTextBtn">Import Text</button>
+            <button class="btn" id="exportTextBtn">Export Text</button>
+          </div>
+        </div>
+        <textarea id="textArea" spellcheck="false"></textarea>
+        <div class="panel-footer">
+          <button class="btn btn-primary" id="playTextBtn">Play</button>
+          <button class="btn" id="clearTextBtn">Clear</button>
+          <button class="btn" id="convertTextToPatternsBtn">Convert to patterns</button>
+        </div>
+      </div>
+
+      <div class="panel" id="panelPatterns">
+        <div class="panel-header">
+          <div class="panel-title">Patterns</div>
+          <div class="panel-buttons">
+            <button class="btn" id="importPatternsBtn">Import patterns</button>
+            <button class="btn" id="exportPatternsBtn">Export patterns</button>
+          </div>
+        </div>
+        <textarea id="patternArea" spellcheck="false"></textarea>
+        <div class="panel-footer">
+          <button class="btn btn-primary" id="playPatternsBtn">Play</button>
+          <button class="btn" id="clearPatternsBtn">Clear</button>
+          <button class="btn" id="convertPatternsToTextBtn">Convert to characters</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const MORSE = {
+      "А": ".-",
+      "Б": "-...",
+      "В": ".--",
+      "Г": "--.",
+      "Д": "-..",
+      "Е": ".",
+      "Ж": "...-",
+      "З": "--..",
+      "И": "..",
+      "Й": ".---",
+      "К": "-.-",
+      "Л": ".-..",
+      "М": "--",
+      "Н": "-.",
+      "О": "---",
+      "П": ".--.",
+      "Р": ".-.",
+      "С": "...",
+      "Т": "-",
+      "У": "..-",
+      "Ф": "..-.",
+      "Х": "....",
+      "Ц": "-.-.",
+      "Ч": "---.",
+      "Ш": "----",
+      "Щ": "--.-",
+      "Ъ": "--.--",
+      "Ы": "-.--",
+      "Ь": "-..-",
+      "Э": "..-..",
+      "Ю": "..--",
+      "Я": ".-.-",
+      "0": "-----",
+      "1": ".----",
+      "2": "..---",
+      "3": "...--",
+      "4": "....-",
+      "5": ".....",
+      "6": "-....",
+      "7": "--...",
+      "8": "---..",
+      "9": "----.",
+      ".": "......",
+      ",": ".-.-.-",
+      "?": "..--..",
+      "'": ".----.",
+      "!": "--..--",
+      "/": "-..-.",
+	  "(": "-.--.-",
+      ")": "-.--.-",
+      ":": "---...",
+      ";": "-.-.-",
+      "-": "-...-",
+      "—": "-....-",
+      "\"": ".-..-.",
+      "@": ".--.-."
+    };
+    const textArea = document.getElementById('textArea');
+    const patternArea = document.getElementById('patternArea');
+    const wpmInput = document.getElementById('wpmInput');
+    const freqInput = document.getElementById('freqInput');
+    const volumeSlider = document.getElementById('volumeSlider');
+    const fontSlider = document.getElementById('fontSlider');
+    const volValue = document.getElementById('volValue');
+    const fontValue = document.getElementById('fontValue');
+    const playPauseBtn = document.getElementById('playPauseBtn');
+    const stopBtn = document.getElementById('stopBtn');
+    const ledIndicator = document.getElementById('ledIndicator');
+    const playTextBtn = document.getElementById('playTextBtn');
+    const clearTextBtn = document.getElementById('clearTextBtn');
+    const convertTextToPatternsBtn = document.getElementById('convertTextToPatternsBtn');
+    const importTextBtn = document.getElementById('importTextBtn');
+    const exportTextBtn = document.getElementById('exportTextBtn');
+    const playPatternsBtn = document.getElementById('playPatternsBtn');
+    const clearPatternsBtn = document.getElementById('clearPatternsBtn');
+    const convertPatternsToTextBtn = document.getElementById('convertPatternsToTextBtn');
+    const importPatternsBtn = document.getElementById('importPatternsBtn');
+    const exportPatternsBtn = document.getElementById('exportPatternsBtn');
+    let audioCtx = null;
+    let gainNode = null;
+    let filterNode = null;
+    let oscillator = null;
+    let isPlaying = false;
+    let isPaused = false;
+    let resumeState = null;
+    let scheduledTimeouts = [];
+
+    function ensureAudioContext() {
+      if (window._morseAudioContext) {
+        audioCtx = window._morseAudioContext;
+      } else {
+        audioCtx = new(window.AudioContext || window.webkitAudioContext)();
+        window._morseAudioContext = audioCtx;
+      }
+      if (!gainNode) {
+        gainNode = audioCtx.createGain();
+        gainNode.gain.value = Number(volumeSlider.value) || 0.4;
+        gainNode.connect(audioCtx.destination);
+      }
+      if (!filterNode) {
+        filterNode = audioCtx.createBiquadFilter();
+        filterNode.type = 'bandpass';
+        filterNode.frequency.value = Number(freqInput.value) || 650;
+        filterNode.Q.value = 10;
+        filterNode.connect(gainNode);
+      }
+    }
+
+    function startTone() {
+      ensureAudioContext();
+      if (audioCtx.state === 'suspended') {
+        audioCtx.resume();
+      }
+      filterNode.frequency.value = Number(freqInput.value) || 650;
+      gainNode.gain.value = Number(volumeSlider.value) || 0.4;
+      oscillator = audioCtx.createOscillator();
+      oscillator.type = 'sine';
+      oscillator.frequency.value = Number(freqInput.value) || 650;
+      oscillator.connect(filterNode);
+      oscillator.start();
+      ledIndicator.classList.add('on');
+    }
+
+    function stopTone() {
+      if (oscillator) {
+        try {
+          oscillator.stop();
+        } catch (e) {}
+        oscillator.disconnect();
+        oscillator = null;
+      }
+      ledIndicator.classList.remove('on');
+    }
+
+    function clearScheduled() {
+      scheduledTimeouts.forEach(t => clearTimeout(t));
+      scheduledTimeouts = [];
+    }
+
+    function stopPlaying() {
+      clearScheduled();
+      stopTone();
+      isPlaying = false;
+      isPaused = false;
+      resumeState = null;
+      playPauseBtn.textContent = 'Play / Pause';
+    }
+
+    function pausePlaying() {
+      if (!isPlaying) return;
+      clearScheduled();
+      stopTone();
+      isPlaying = false;
+      isPaused = true;
+      playPauseBtn.textContent = 'Resume';
+    }
+
+    function resumeCurrent() {
+      if (!resumeState) return;
+      const wpm = Math.max(5, Number(wpmInput.value) || 20);
+      const dotMs = 1200 / wpm;
+      const dashMs = dotMs * 3;
+      const intraCharGap = dotMs;
+      const interLetterGap = dotMs * 3;
+      const interWordGap = dotMs * 7;
+      // parameters recomputed inside play functions anyway
+      if (resumeState.mode === 'text') {
+        playText(textArea.value, {
+          highlight: true
+        }, resumeState);
+      } else if (resumeState.mode === 'patterns') {
+        playPatterns(patternArea.value, {
+          highlight: true
+        }, resumeState);
+      }
+      isPaused = false;
+      playPauseBtn.textContent = 'Pause';
+    }
+    playPauseBtn.addEventListener('click', () => {
+      if (isPlaying && !isPaused) {
+        pausePlaying();
+      } else if (!isPlaying && resumeState) {
+        resumeCurrent();
+      }
+    });
+    stopBtn.addEventListener('click', () => {
+      stopPlaying();
+    });
+    volumeSlider.addEventListener('input', () => {
+      volValue.textContent = Number(volumeSlider.value).toFixed(2);
+      if (gainNode) {
+        gainNode.gain.value = Number(volumeSlider.value);
+      }
+    });
+    fontSlider.addEventListener('input', () => {
+      const size = fontSlider.value + 'px';
+      textArea.style.fontSize = size;
+      patternArea.style.fontSize = size;
+      fontValue.textContent = size;
+    });
+
+    function scrollToSelection(el) {
+      requestAnimationFrame(() => {
+        const start = el.selectionStart;
+        const div = document.createElement("div");
+        const style = getComputedStyle(el);
+        for (let prop of [
+            "fontFamily", "fontSize", "lineHeight", "padding", "border",
+            "whiteSpace", "width"
+          ]) {
+          div.style[prop] = style[prop];
+        }
+        div.style.position = "absolute";
+        div.style.visibility = "hidden";
+        div.style.whiteSpace = "pre-wrap";
+        div.style.wordWrap = "break-word";
+        div.textContent = el.value.substring(0, start);
+        document.body.appendChild(div);
+        const height = div.offsetHeight;
+        document.body.removeChild(div);
+        el.scrollTop = height - el.clientHeight / 2;
+      });
+    }
+
+    function highlightChar(area, index) {
+      if (index < 0 || index >= area.value.length) return;
+      area.focus();
+      area.selectionStart = index;
+      area.selectionEnd = index + 1;
+      scrollToSelection(area);
+    }
+
+    function exportText(filename, content) {
+      const blob = new Blob([content], {
+        type: 'text/plain'
+      });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    }
+
+    function importIntoTextarea(area) {
+      const input = document.createElement('input');
+      input.type = 'file';
+      input.accept = '.txt,text/plain';
+      input.addEventListener('change', () => {
+        const file = input.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = e => {
+          area.value = e.target.result;
+        };
+        reader.readAsText(file);
+      });
+      input.click();
+    }
+
+    function textToPatterns(text) {
+      let result = [];
+      let parenToggle = false; // for "(" and ")" alternation
+      for (let i = 0; i < text.length; i++) {
+        const ch = text[i];
+        if (ch === ' ') {
+          result.push('/');
+          continue;
+        }
+        let upper = ch.toUpperCase();
+        if (upper === '(' || upper === ')') {
+          // both use same pattern, but we track alternation for decoding later
+          result.push("-.--.-");
+          parenToggle = !parenToggle;
+          continue;
+        }
+        const code = MORSE[upper];
+        if (code) {
+          result.push(code);
+        } else {
+          // unknown char: skip or mark
+        }
+      }
+      return result.join(' ');
+    }
+
+    function patternsToText(patterns) {
+      const tokens = patterns.trim().split(/\s+/);
+      let parenToggle = false;
+      let out = [];
+      tokens.forEach(tok => {
+        if (!tok) return;
+        if (tok === '/') {
+          out.push(' ');
+          return;
+        }
+        if (tok === "-.--.-") {
+          if (!parenToggle) {
+            out.push('(');
+          } else {
+            out.push(')');
+          }
+          parenToggle = !parenToggle;
+          return;
+        }
+        let found = null;
+        for (let key in MORSE) {
+          if (MORSE[key] === tok) {
+            found = key;
+            break;
+          }
+        }
+        if (found) {
+          out.push(found);
+        }
+      });
+      return out.join('');
+    }
+
+    function playText(text, opts = {}, resume = null) {
+      if (!text || !text.trim()) return;
+      if (isPlaying) stopPlaying();
+      ensureAudioContext();
+      const wpm = Math.max(5, Number(wpmInput.value) || 20);
+      const dotMs = 1200 / wpm;
+      const dashMs = dotMs * 3;
+      const intraCharGap = dotMs;
+      const interLetterGap = dotMs * 3;
+      const interWordGap = dotMs * 7;
+      let startIndex = resume && resume.index != null ? resume.index : 0;
+      let t = 0;
+      isPlaying = true;
+      isPaused = false;
+      playPauseBtn.textContent = 'Pause';
+      for (let i = startIndex; i < text.length; i++) {
+        const ch = text[i];
+        (function(idx, timeOffset, char) {
+          if (opts.highlight) {
+            const timeout = setTimeout(() => {
+              if (!isPlaying) return;
+              highlightChar(textArea, idx);
+              resumeState = {
+                mode: 'text',
+                index: idx
+              };
+            }, timeOffset);
+            scheduledTimeouts.push(timeout);
+          }
+          if (char === ' ') {
+            t += interWordGap;
+            return;
+          }
+          let upper = char.toUpperCase();
+          let pat;
+          if (upper === '(' || upper === ')') {
+            pat = "-.--.-";
+          } else {
+            pat = MORSE[upper];
+          }
+          if (!pat) {
+            t += interLetterGap;
+            return;
+          }
+          for (let s = 0; s < pat.length; s++) {
+            const isDot = pat[s] === '.';
+            const dur = isDot ? dotMs : dashMs;
+            const toneTimeout = setTimeout(() => {
+              if (!isPlaying) return;
+              startTone();
+            }, t);
+            const stopTimeout = setTimeout(() => {
+              stopTone();
+            }, t + dur);
+            scheduledTimeouts.push(toneTimeout, stopTimeout);
+            t += dur;
+            if (s < pat.length - 1) {
+              t += intraCharGap;
+            }
+          }
+          t += interLetterGap;
+        })(i, t, ch);
+      }
+      const finalTimeout = setTimeout(() => {
+        stopPlaying();
+      }, t + 50);
+      scheduledTimeouts.push(finalTimeout);
+    }
+
+    function playPatterns(patternText, opts = {}, resume = null) {
+      if (!patternText || !patternText.trim()) return;
+      if (isPlaying) stopPlaying();
+      ensureAudioContext();
+      const wpm = Math.max(5, Number(wpmInput.value) || 20);
+      const dotMs = 1200 / wpm;
+      const dashMs = dotMs * 3;
+      const intraCharGap = dotMs;
+      const interLetterGap = dotMs * 3;
+      const interWordGap = dotMs * 7;
+      const tokens = patternText.trim().split(/\s+/);
+      let startIndex = resume && resume.index != null ? resume.index : 0;
+      let t = 0;
+      isPlaying = true;
+      isPaused = false;
+      playPauseBtn.textContent = 'Pause';
+      for (let i = startIndex; i < tokens.length; i++) {
+        const tok = tokens[i];
+        (function(idx, timeOffset, token) {
+          if (opts.highlight) {
+            const timeout = setTimeout(() => {
+              if (!isPlaying) return;
+              const full = patternArea.value;
+              let pos = -1;
+              let count = 0;
+              const re = /\S+/g;
+              let m;
+              while ((m = re.exec(full)) !== null) {
+                if (count === idx) {
+                  pos = m.index;
+                  break;
+                }
+                count++;
+              }
+              if (pos >= 0) {
+                patternArea.focus();
+                patternArea.selectionStart = pos;
+                patternArea.selectionEnd = pos + token.length;
+                scrollToSelection(patternArea);
+                resumeState = {
+                  mode: 'patterns',
+                  index: idx
+                };
+              }
+            }, timeOffset);
+            scheduledTimeouts.push(timeout);
+          }
+          if (token === '/') {
+            t += interWordGap;
+            return;
+          }
+          const pat = token;
+          for (let s = 0; s < pat.length; s++) {
+            const isDot = pat[s] === '.';
+            const dur = isDot ? dotMs : dashMs;
+            const toneTimeout = setTimeout(() => {
+              if (!isPlaying) return;
+              startTone();
+            }, t);
+            const stopTimeout = setTimeout(() => {
+              stopTone();
+            }, t + dur);
+            scheduledTimeouts.push(toneTimeout, stopTimeout);
+            t += dur;
+            if (s < pat.length - 1) {
+              t += intraCharGap;
+            }
+          }
+          t += interLetterGap;
+        })(i, t, tok);
+      }
+      const finalTimeout = setTimeout(() => {
+        stopPlaying();
+      }, t + 50);
+      scheduledTimeouts.push(finalTimeout);
+    }
+    // Buttons wiring
+    playTextBtn.addEventListener('click', () => {
+      stopPlaying();
+      playText(textArea.value, {
+        highlight: true
+      });
+    });
+    playPatternsBtn.addEventListener('click', () => {
+      stopPlaying();
+      playPatterns(patternArea.value, {
+        highlight: true
+      });
+    });
+    clearTextBtn.addEventListener('click', () => {
+      textArea.value = '';
+    });
+    clearPatternsBtn.addEventListener('click', () => {
+      patternArea.value = '';
+    });
+    convertTextToPatternsBtn.addEventListener('click', () => {
+      const patterns = textToPatterns(textArea.value);
+      patternArea.value = patterns;
+    });
+    convertPatternsToTextBtn.addEventListener('click', () => {
+      const text = patternsToText(patternArea.value);
+      textArea.value = text;
+    });
+    importTextBtn.addEventListener('click', () => {
+      importIntoTextarea(textArea);
+    });
+    exportTextBtn.addEventListener('click', () => {
+      exportText('morse_text.txt', textArea.value || '');
+    });
+    importPatternsBtn.addEventListener('click', () => {
+      importIntoTextarea(patternArea);
+    });
+    exportPatternsBtn.addEventListener('click', () => {
+      exportText('morse_patterns.txt', patternArea.value || '');
+    });
+    // initial font sync
+    textArea.style.fontSize = fontSlider.value + 'px';
+    patternArea.style.fontSize = fontSlider.value + 'px';
+  </script>
+</body>
+
+</html>
